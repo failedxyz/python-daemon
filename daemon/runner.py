@@ -114,8 +114,6 @@ class DaemonRunner(object):
             self._usage_exit(argv)
 
         self.action = unicode(argv[1])
-        if self.action not in self.action_funcs:
-            self._usage_exit(argv)
 
     def _start(self):
         """ Open the daemon context and run the application.
@@ -171,6 +169,11 @@ class DaemonRunner(object):
         'restart': _restart,
         }
 
+    def register_action_func(self, func, name=None):
+        if not name:
+            name = func.__name__
+        self.action_funcs[name] = func
+
     def _get_action_func(self):
         """ Return the function for the specified action.
 
@@ -188,6 +191,8 @@ class DaemonRunner(object):
     def do_action(self):
         """ Perform the requested action.
             """
+        if self.action not in self.action_funcs:
+            self._usage_exit(argv)
         func = self._get_action_func()
         func(self)
 
